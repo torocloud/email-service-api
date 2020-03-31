@@ -1,0 +1,540 @@
+{
+    "input": [
+        {
+            "name": "message",
+            "type": "model",
+            "reference": "io.toro.martini.jms.Message",
+            "allowExtraProperties": true
+        }
+    ],
+    "steps": [
+        {
+            "type": "block",
+            "blockType": "TRY_CATCH",
+            "children": [
+                {
+                    "comments": "Map the email properties and email body",
+                    "declare": [
+                        {
+                            "variables": [
+                                {
+                                    "name": "emailProperties",
+                                    "type": "model",
+                                    "gloopProperties": [
+                                        {
+                                            "name": "username"
+                                        },
+                                        {
+                                            "name": "password"
+                                        },
+                                        {
+                                            "name": "host"
+                                        },
+                                        {
+                                            "name": "port",
+                                            "type": "integer"
+                                        },
+                                        {
+                                            "name": "from"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "address",
+                                    "type": "model",
+                                    "array": true,
+                                    "reference": "io.toro.martini.email.Address"
+                                },
+                                {
+                                    "name": "emailBody"
+                                }
+                            ]
+                        }
+                    ],
+                    "lines": [
+                        {
+                            "type": "set",
+                            "expression": "'smtp.username'.getPackageProperty( '' )",
+                            "evaluate": true,
+                            "to": [
+                                "emailProperties",
+                                "username"
+                            ]
+                        },
+                        {
+                            "type": "set",
+                            "expression": "'smtp.password'.getPackageProperty( '' )",
+                            "evaluate": true,
+                            "to": [
+                                "emailProperties",
+                                "password"
+                            ]
+                        },
+                        {
+                            "type": "set",
+                            "expression": "'smtp.server'.getPackageProperty( '' )",
+                            "evaluate": true,
+                            "to": [
+                                "emailProperties",
+                                "host"
+                            ]
+                        },
+                        {
+                            "type": "set",
+                            "expression": "'smtp.port'.getPackageProperty()",
+                            "evaluate": true,
+                            "to": [
+                                "emailProperties",
+                                "port"
+                            ]
+                        },
+                        {
+                            "type": "set",
+                            "expression": "'smtp.email.alias'.getPackageProperty( '' )",
+                            "evaluate": true,
+                            "to": [
+                                "emailProperties",
+                                "from"
+                            ]
+                        },
+                        {
+                            "type": "set",
+                            "expression": "\"\"\"\nMessage ID       :  ${message.messageId}\nTimestamp        :  ${message.timestamp}\nCorrelation ID   :  ${message.correlationId}\nType             :  ${message.type}\nMessage          :  ${message.body}\n\"\"\"",
+                            "evaluate": true,
+                            "to": [
+                                "emailBody"
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "invokeCode",
+                    "className": "io.toro.martini.TrackerMethods",
+                    "methodName": "addDocument",
+                    "parameters": [
+                        "java.lang.String",
+                        "java.lang.String",
+                        "java.lang.String",
+                        "java.lang.String",
+                        "java.lang.String",
+                        "java.lang.String",
+                        "java.lang.String"
+                    ],
+                    "inputs": [
+                        {
+                            "from": [
+                                "message",
+                                "timestamp"
+                            ],
+                            "to": [
+                                "externalId"
+                            ]
+                        },
+                        {
+                            "type": "set",
+                            "expression": "JMS",
+                            "to": [
+                                "documentTypeId"
+                            ]
+                        },
+                        {
+                            "type": "set",
+                            "expression": "Message Received",
+                            "to": [
+                                "stateName"
+                            ]
+                        },
+                        {
+                            "type": "set",
+                            "expression": "message.asJson()",
+                            "evaluate": true,
+                            "to": [
+                                "content"
+                            ]
+                        },
+                        {
+                            "type": "set",
+                            "expression": "SendEmailNotification.gloop",
+                            "to": [
+                                "receiverId"
+                            ]
+                        },
+                        {
+                            "type": "set",
+                            "expression": "NotificationService.gloop",
+                            "to": [
+                                "senderId"
+                            ]
+                        },
+                        {
+                            "type": "set",
+                            "expression": "def ids = message.messageId.split( ':' )\n\n\"${ids[1]}-${ids[ids.length - 1]}\"",
+                            "evaluate": true,
+                            "to": [
+                                "internalId"
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "invokeCode",
+                    "declare": [
+                        {
+                            "variables": [
+                                {
+                                    "name": "recipients",
+                                    "array": true,
+                                    "comments": "the property value, or {@code null} if the property doesn't exist"
+                                }
+                            ]
+                        }
+                    ],
+                    "className": "io.toro.martini.GroovyMethods",
+                    "methodName": "getPackagePropertyArray",
+                    "parameters": [
+                        "java.lang.String"
+                    ],
+                    "inputs": [
+                        {
+                            "type": "set",
+                            "expression": "email.notification.recipients",
+                            "to": [
+                                "key"
+                            ]
+                        }
+                    ],
+                    "outputs": [
+                        {
+                            "from": [
+                                "output"
+                            ],
+                            "to": [
+                                "recipients"
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "fork",
+                    "expression": "recipients.size() > 0",
+                    "children": [
+                        {
+                            "type": "block",
+                            "label": "true",
+                            "children": [
+                                {
+                                    "type": "iterate",
+                                    "input": {
+                                        "path": [
+                                            "recipients"
+                                        ]
+                                    },
+                                    "output": {
+                                        "path": [
+                                            "address"
+                                        ]
+                                    },
+                                    "children": [
+                                        {
+                                            "lines": [
+                                                {
+                                                    "from": [
+                                                        "recipients"
+                                                    ],
+                                                    "to": [
+                                                        "address",
+                                                        "address"
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "invokeCode",
+                    "declare": [
+                        {
+                            "variables": [
+                                {
+                                    "name": "mailMetadata",
+                                    "type": "model",
+                                    "reference": "io.toro.martini.email.MailMetadata"
+                                }
+                            ]
+                        }
+                    ],
+                    "className": "io.toro.martini.EmailMethods",
+                    "methodName": "sendEmail",
+                    "parameters": [
+                        "java.lang.String",
+                        "java.lang.String",
+                        "java.lang.String",
+                        "java.lang.String",
+                        "int",
+                        "java.lang.String",
+                        "java.util.List",
+                        "java.util.List",
+                        "java.util.List",
+                        "java.lang.String",
+                        "boolean",
+                        "java.lang.String",
+                        "java.util.List",
+                        "java.util.List"
+                    ],
+                    "inputs": [
+                        {
+                            "from": [
+                                "emailProperties",
+                                "username"
+                            ],
+                            "to": [
+                                "login"
+                            ]
+                        },
+                        {
+                            "from": [
+                                "emailProperties",
+                                "password"
+                            ],
+                            "to": [
+                                "password"
+                            ]
+                        },
+                        {
+                            "from": [
+                                "emailProperties",
+                                "host"
+                            ],
+                            "to": [
+                                "server"
+                            ]
+                        },
+                        {
+                            "from": [
+                                "emailProperties",
+                                "port"
+                            ],
+                            "to": [
+                                "port"
+                            ]
+                        },
+                        {
+                            "from": [
+                                "emailProperties",
+                                "from"
+                            ],
+                            "to": [
+                                "from"
+                            ]
+                        },
+                        {
+                            "from": [
+                                "address"
+                            ],
+                            "to": [
+                                "to"
+                            ]
+                        },
+                        {
+                            "from": [
+                                "emailBody"
+                            ],
+                            "to": [
+                                "body"
+                            ]
+                        },
+                        {
+                            "type": "set",
+                            "expression": "smtps",
+                            "to": [
+                                "protocol"
+                            ]
+                        },
+                        {
+                            "type": "set",
+                            "expression": "Notification",
+                            "to": [
+                                "subject"
+                            ]
+                        },
+                        {
+                            "type": "set",
+                            "expression": "false",
+                            "to": [
+                                "isHtml"
+                            ]
+                        }
+                    ],
+                    "outputs": [
+                        {
+                            "from": [
+                                "mailMetadata"
+                            ],
+                            "to": [
+                                "mailMetadata"
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "invokeCode",
+                    "className": "io.toro.martini.TrackerMethods",
+                    "methodName": "addDocument",
+                    "parameters": [
+                        "java.lang.String",
+                        "java.lang.String",
+                        "java.lang.String",
+                        "java.lang.String",
+                        "java.lang.String",
+                        "java.lang.String",
+                        "java.lang.String"
+                    ],
+                    "inputs": [
+                        {
+                            "from": [
+                                "message",
+                                "timestamp"
+                            ],
+                            "to": [
+                                "externalId"
+                            ]
+                        },
+                        {
+                            "type": "set",
+                            "expression": "JMS",
+                            "to": [
+                                "documentTypeId"
+                            ]
+                        },
+                        {
+                            "type": "set",
+                            "expression": "SendEmailNotification.gloop",
+                            "to": [
+                                "senderId"
+                            ]
+                        },
+                        {
+                            "type": "set",
+                            "expression": "mailMetadata.asJson()",
+                            "evaluate": true,
+                            "to": [
+                                "content"
+                            ]
+                        },
+                        {
+                            "type": "set",
+                            "expression": "Notification Sent",
+                            "to": [
+                                "stateName"
+                            ]
+                        },
+                        {
+                            "type": "set",
+                            "expression": "def ids = message.messageId.split( ':' )\n\n\"${ids[1]}-${ids[ids.length - 1]}\"",
+                            "evaluate": true,
+                            "to": [
+                                "internalId"
+                            ]
+                        }
+                    ]
+                }
+            ],
+            "catch": [
+                {
+                    "type": "invokeCode",
+                    "className": "io.toro.martini.LoggerMethods",
+                    "methodName": "error",
+                    "parameters": [
+                        "java.lang.String",
+                        "java.lang.Throwable"
+                    ],
+                    "inputs": [
+                        {
+                            "from": [
+                                "$gloopException",
+                                "gloopStackTrace"
+                            ],
+                            "to": [
+                                "message"
+                            ]
+                        },
+                        {
+                            "from": [
+                                "$gloopException",
+                                "realException"
+                            ],
+                            "to": [
+                                "throwable"
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "invokeCode",
+                    "className": "io.toro.martini.TrackerMethods",
+                    "methodName": "addDocument",
+                    "parameters": [
+                        "java.lang.String",
+                        "java.lang.String",
+                        "java.lang.String",
+                        "java.lang.String",
+                        "java.lang.String",
+                        "java.lang.String",
+                        "java.lang.String"
+                    ],
+                    "inputs": [
+                        {
+                            "from": [
+                                "message",
+                                "timestamp"
+                            ],
+                            "to": [
+                                "externalId"
+                            ]
+                        },
+                        {
+                            "type": "set",
+                            "expression": "JMS",
+                            "to": [
+                                "documentTypeId"
+                            ]
+                        },
+                        {
+                            "type": "set",
+                            "expression": "Failed to send notification",
+                            "to": [
+                                "stateName"
+                            ]
+                        },
+                        {
+                            "type": "set",
+                            "expression": "$gloopException.asJson()",
+                            "evaluate": true,
+                            "to": [
+                                "content"
+                            ]
+                        },
+                        {
+                            "type": "set",
+                            "expression": "SendEmailNotification.gloop",
+                            "to": [
+                                "senderId"
+                            ]
+                        },
+                        {
+                            "type": "set",
+                            "expression": "def ids = objectMessage.messageId.split( ':' )\n\n\"${ids[1]}-${ids[ids.length - 1]}\"",
+                            "to": [
+                                "internalId"
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

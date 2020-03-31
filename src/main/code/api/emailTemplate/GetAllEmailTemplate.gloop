@@ -1,0 +1,226 @@
+{
+    "output": [
+        {
+            "name": "APIResponse",
+            "type": "model",
+            "reference": "io.toro.martini.api.APIResponse",
+            "gloopProperties": [
+                {
+                    "name": "emailTemplate",
+                    "type": "model",
+                    "array": true,
+                    "reference": "model.EmailTemplate"
+                }
+            ]
+        },
+        {
+            "name": "responseCode",
+            "type": "integer"
+        }
+    ],
+    "steps": [
+        {
+            "type": "block",
+            "blockType": "TRY_CATCH",
+            "children": [
+                {
+                    "type": "invokeGloop",
+                    "name": "sql.SelectAllEmailTemplate",
+                    "declare": [
+                        {
+                            "variables": [
+                                {
+                                    "name": "emailTemplate",
+                                    "type": "model",
+                                    "array": true,
+                                    "reference": "model.EmailTemplate"
+                                },
+                                {
+                                    "name": "selectAllEmailTemplateInputCursor",
+                                    "type": "model",
+                                    "array": true,
+                                    "gloopProperties": [
+                                        {
+                                            "name": "ID",
+                                            "required": true,
+                                            "allowNull": false
+                                        },
+                                        {
+                                            "name": "TEMPLATE_NAME",
+                                            "required": true,
+                                            "allowNull": false
+                                        },
+                                        {
+                                            "name": "DESCRIPTION",
+                                            "required": true
+                                        },
+                                        {
+                                            "name": "EMAIL_TEMPLATE",
+                                            "required": true
+                                        },
+                                        {
+                                            "name": "DATE_CREATED",
+                                            "type": "date",
+                                            "required": true
+                                        },
+                                        {
+                                            "name": "DATE_UPDATED",
+                                            "type": "date",
+                                            "required": true
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ],
+                    "outputs": [
+                        {
+                            "from": [
+                                "selectAllEmailTemplateInputCursor"
+                            ],
+                            "to": [
+                                "selectAllEmailTemplateInputCursor"
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "iterate",
+                    "input": {
+                        "path": [
+                            "selectAllEmailTemplateInputCursor"
+                        ]
+                    },
+                    "output": {
+                        "path": [
+                            "emailTemplate"
+                        ]
+                    },
+                    "children": [
+                        {
+                            "lines": [
+                                {
+                                    "from": [
+                                        "selectAllEmailTemplateInputCursor",
+                                        "ID"
+                                    ],
+                                    "to": [
+                                        "emailTemplate",
+                                        "id"
+                                    ]
+                                },
+                                {
+                                    "from": [
+                                        "selectAllEmailTemplateInputCursor",
+                                        "TEMPLATE_NAME"
+                                    ],
+                                    "to": [
+                                        "emailTemplate",
+                                        "email_template_name"
+                                    ]
+                                },
+                                {
+                                    "from": [
+                                        "selectAllEmailTemplateInputCursor",
+                                        "DESCRIPTION"
+                                    ],
+                                    "to": [
+                                        "emailTemplate",
+                                        "email_template_description"
+                                    ]
+                                },
+                                {
+                                    "from": [
+                                        "selectAllEmailTemplateInputCursor",
+                                        "EMAIL_TEMPLATE"
+                                    ],
+                                    "to": [
+                                        "emailTemplate",
+                                        "email_template"
+                                    ]
+                                },
+                                {
+                                    "from": [
+                                        "selectAllEmailTemplateInputCursor",
+                                        "DATE_CREATED"
+                                    ],
+                                    "to": [
+                                        "emailTemplate",
+                                        "dateCreated"
+                                    ]
+                                },
+                                {
+                                    "from": [
+                                        "selectAllEmailTemplateInputCursor",
+                                        "DATE_UPDATED"
+                                    ],
+                                    "to": [
+                                        "emailTemplate",
+                                        "dateUpdated"
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "lines": [
+                        {
+                            "from": [
+                                "emailTemplate"
+                            ],
+                            "to": [
+                                "APIResponse",
+                                "emailTemplate"
+                            ]
+                        },
+                        {
+                            "type": "set",
+                            "expression": "Success",
+                            "to": [
+                                "APIResponse",
+                                "result"
+                            ]
+                        },
+                        {
+                            "type": "set",
+                            "expression": "200",
+                            "to": [
+                                "responseCode"
+                            ]
+                        }
+                    ]
+                }
+            ],
+            "catch": [
+                {
+                    "lines": [
+                        {
+                            "type": "set",
+                            "expression": "500",
+                            "to": [
+                                "responseCode"
+                            ]
+                        },
+                        {
+                            "type": "set",
+                            "expression": "Request failed.",
+                            "to": [
+                                "APIResponse",
+                                "result"
+                            ]
+                        },
+                        {
+                            "type": "set",
+                            "expression": "Unable to retrieve available email templates.",
+                            "to": [
+                                "APIResponse",
+                                "message"
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

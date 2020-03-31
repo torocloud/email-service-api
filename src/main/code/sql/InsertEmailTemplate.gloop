@@ -1,0 +1,42 @@
+{
+    "type": "customSql",
+    "input": [
+        {
+            "name": "insertEmailTemplateInput",
+            "type": "model",
+            "gloopProperties": [
+                {
+                    "name": "$martiniConnectionPool"
+                },
+                {
+                    "name": "$getGeneratedKeys",
+                    "type": "boolean",
+                    "defaultValue": false
+                },
+                {
+                    "name": "emailTemplateName"
+                },
+                {
+                    "name": "emailTemplateDescription"
+                },
+                {
+                    "name": "emailTemplate"
+                }
+            ]
+        }
+    ],
+    "output": [
+        {
+            "name": "updateCount",
+            "type": "integer"
+        },
+        {
+            "name": "generatedKeys",
+            "type": "model",
+            "allowExtraProperties": true
+        }
+    ],
+    "connectionPoolName": "email_template",
+    "sqlType": "INSERT",
+    "query": "INSERT INTO \"TEMPLATES\" (\n    \"TEMPLATE_NAME\",\n    \"DESCRIPTION\",\n    \"EMAIL_TEMPLATE\"\n)\nVALUES (\n    :emailTemplateName,\n    :emailTemplateDescription,\n    :emailTemplate\n)"
+}

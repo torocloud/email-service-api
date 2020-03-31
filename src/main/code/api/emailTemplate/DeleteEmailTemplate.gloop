@@ -1,0 +1,102 @@
+{
+    "input": [
+        {
+            "name": "emailTemplateId",
+            "type": "integer"
+        }
+    ],
+    "output": [
+        {
+            "name": "APIResponse",
+            "type": "model",
+            "reference": "io.toro.martini.api.APIResponse"
+        },
+        {
+            "name": "responseCode",
+            "type": "integer"
+        }
+    ],
+    "steps": [
+        {
+            "type": "invokeGloop",
+            "name": "sql.DeleteEmailTemplate",
+            "declare": [
+                {
+                    "variables": [
+                        {
+                            "name": "updateCount",
+                            "type": "integer"
+                        }
+                    ]
+                }
+            ],
+            "inputs": [
+                {
+                    "from": [
+                        "emailTemplateId"
+                    ],
+                    "to": [
+                        "deleteEmailTemplateInput",
+                        "id"
+                    ]
+                }
+            ],
+            "outputs": [
+                {
+                    "from": [
+                        "updateCount"
+                    ],
+                    "to": [
+                        "updateCount"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "fork",
+            "expression": "updateCount > 0",
+            "children": [
+                {
+                    "label": "true",
+                    "lines": [
+                        {
+                            "type": "set",
+                            "expression": "Successfully deleted email template",
+                            "to": [
+                                "APIResponse",
+                                "message"
+                            ]
+                        },
+                        {
+                            "type": "set",
+                            "expression": "200",
+                            "to": [
+                                "responseCode"
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "label": "$else",
+                    "lines": [
+                        {
+                            "type": "set",
+                            "expression": "Failed to delete email template",
+                            "to": [
+                                "APIResponse",
+                                "message"
+                            ]
+                        },
+                        {
+                            "type": "set",
+                            "expression": "404",
+                            "to": [
+                                "responseCode"
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,294 @@
+{
+    "steps": [
+        {
+            "type": "block",
+            "blockType": "TRY_CATCH",
+            "children": [
+                {
+                    "type": "fork",
+                    "expression": "'database.type'.getPackageProperty().equalsIgnoreCase( 'oracle' )",
+                    "children": [
+                        {
+                            "type": "invokeCode",
+                            "label": "true",
+                            "className": "io.toro.martini.GloopMethods",
+                            "methodName": "setSystemProperty",
+                            "parameters": [
+                                "java.lang.String",
+                                "java.lang.String"
+                            ],
+                            "inputs": [
+                                {
+                                    "type": "set",
+                                    "expression": "oracle.jdbc.J2EE13Compliant",
+                                    "to": [
+                                        "name"
+                                    ]
+                                },
+                                {
+                                    "type": "set",
+                                    "expression": "true",
+                                    "to": [
+                                        "value"
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "comments": "Map database connection pool configuration",
+                    "declare": [
+                        {
+                            "variables": [
+                                {
+                                    "name": "JDBCConnectionPoolInfo",
+                                    "type": "model",
+                                    "reference": "io.toro.martini.jdbc.JDBCConnectionPoolInfo"
+                                },
+                                {
+                                    "name": "database"
+                                },
+                                {
+                                    "name": "dateType"
+                                }
+                            ]
+                        }
+                    ],
+                    "lines": [
+                        {
+                            "type": "set",
+                            "expression": "false",
+                            "to": [
+                                "JDBCConnectionPoolInfo",
+                                "xa"
+                            ]
+                        },
+                        {
+                            "type": "set",
+                            "expression": "'database.type'.getPackageProperty( 'hsql' )",
+                            "evaluate": true,
+                            "to": [
+                                "database"
+                            ]
+                        },
+                        {
+                            "type": "set",
+                            "expression": "\"${database}.driver\".getPackageProperty()",
+                            "evaluate": true,
+                            "to": [
+                                "JDBCConnectionPoolInfo",
+                                "driverClass"
+                            ],
+                            "priority": 1
+                        },
+                        {
+                            "type": "set",
+                            "expression": "'database.name'.getPackageProperty()",
+                            "evaluate": true,
+                            "to": [
+                                "JDBCConnectionPoolInfo",
+                                "name"
+                            ],
+                            "priority": 1
+                        },
+                        {
+                            "type": "set",
+                            "expression": "true",
+                            "to": [
+                                "JDBCConnectionPoolInfo",
+                                "enabled"
+                            ],
+                            "priority": 1
+                        },
+                        {
+                            "type": "set",
+                            "expression": "\"${database}.connection.url\".getPackageProperty( '' )",
+                            "evaluate": true,
+                            "to": [
+                                "JDBCConnectionPoolInfo",
+                                "url"
+                            ],
+                            "priority": 1
+                        },
+                        {
+                            "type": "set",
+                            "expression": "\"${database}.username\".getPackageProperty()",
+                            "evaluate": true,
+                            "to": [
+                                "JDBCConnectionPoolInfo",
+                                "username"
+                            ],
+                            "priority": 1
+                        },
+                        {
+                            "type": "set",
+                            "expression": "\"${database}.password\".getPackageProperty()",
+                            "evaluate": true,
+                            "to": [
+                                "JDBCConnectionPoolInfo",
+                                "password"
+                            ],
+                            "priority": 1
+                        },
+                        {
+                            "type": "set",
+                            "expression": "'database.type'.getPackageProperty().equalsIgnoreCase( 'mssql' ) ? 'DATETIME' : 'TIMESTAMP'",
+                            "evaluate": true,
+                            "to": [
+                                "dateType"
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "invokeCode",
+                    "declare": [
+                        {
+                            "variables": [
+                                {
+                                    "name": "exists",
+                                    "type": "boolean",
+                                    "allowNull": false
+                                }
+                            ]
+                        }
+                    ],
+                    "className": "io.toro.martini.DatabaseConnectionPoolMethods",
+                    "methodName": "containsConnectionWithName",
+                    "parameters": [
+                        "java.lang.String"
+                    ],
+                    "inputs": [
+                        {
+                            "from": [
+                                "JDBCConnectionPoolInfo",
+                                "name"
+                            ],
+                            "to": [
+                                "name"
+                            ]
+                        }
+                    ],
+                    "outputs": [
+                        {
+                            "from": [
+                                "output"
+                            ],
+                            "to": [
+                                "exists"
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "fork",
+                    "expression": "exists",
+                    "children": [
+                        {
+                            "type": "block",
+                            "label": "false",
+                            "children": [
+                                {
+                                    "type": "invokeCode",
+                                    "className": "io.toro.martini.DatabaseConnectionPoolMethods",
+                                    "methodName": "savePool",
+                                    "parameters": [
+                                        "io.toro.gloop.object.property.GloopModel"
+                                    ],
+                                    "inputs": [
+                                        {
+                                            "from": [
+                                                "JDBCConnectionPoolInfo"
+                                            ],
+                                            "to": [
+                                                "connectionPoolInfo"
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "invokeCode",
+                                    "className": "io.toro.martini.DatabaseConnectionPoolMethods",
+                                    "methodName": "startPool",
+                                    "parameters": [
+                                        "java.lang.String"
+                                    ],
+                                    "inputs": [
+                                        {
+                                            "from": [
+                                                "JDBCConnectionPoolInfo",
+                                                "name"
+                                            ],
+                                            "to": [
+                                                "name"
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "invokeCode",
+                                    "className": "io.toro.martini.SqlMethods",
+                                    "methodName": "sql",
+                                    "parameters": [
+                                        "java.lang.String",
+                                        "groovy.lang.Closure"
+                                    ],
+                                    "inputs": [
+                                        {
+                                            "type": "set",
+                                            "expression": "'database.name'.getPackageProperty()",
+                                            "evaluate": true,
+                                            "to": [
+                                                "poolName"
+                                            ]
+                                        },
+                                        {
+                                            "type": "set",
+                                            "expression": "{ sql ->\n\tsql.execute \"\"\"\n\t\tCREATE TABLE \"TEMPLATES\" (\n\t\t\t\"ID\" VARCHAR(50) PRIMARY KEY,\n\t\t\t\"TEMPLATE_NAME\" VARCHAR(45) NOT NULL,\n\t\t\t\"DESCRIPTION\" VARCHAR(250) DEFAULT NULL,\n\t\t\t\"EMAIL_TEMPLATE\" TEXT,\n\t\t\t\"DATE_CREATED\" $dateType DEFAULT CURRENT_TIMESTAMP,\n\t\t\t\"DATE_UPDATED\" $dateType DEFAULT CURRENT_TIMESTAMP\n\t\t)\n\t\"\"\".toString()\n}",
+                                            "evaluate": true,
+                                            "to": [
+                                                "c"
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ],
+            "catch": [
+                {
+                    "type": "invokeCode",
+                    "className": "io.toro.martini.LoggerMethods",
+                    "methodName": "error",
+                    "parameters": [
+                        "java.lang.String",
+                        "java.lang.Throwable"
+                    ],
+                    "inputs": [
+                        {
+                            "from": [
+                                "$gloopException",
+                                "realException"
+                            ],
+                            "to": [
+                                "throwable"
+                            ]
+                        },
+                        {
+                            "from": [
+                                "$gloopException",
+                                "gloopStackTrace"
+                            ],
+                            "to": [
+                                "message"
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

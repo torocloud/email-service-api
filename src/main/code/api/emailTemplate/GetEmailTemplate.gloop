@@ -1,0 +1,179 @@
+{
+    "input": [
+        {
+            "name": "emailTemplateId",
+            "type": "integer",
+            "allowNull": false
+        }
+    ],
+    "output": [
+        {
+            "name": "response",
+            "type": "model",
+            "reference": "io.toro.martini.api.APIResponse",
+            "gloopProperties": [
+                {
+                    "name": "emailTemplate",
+                    "type": "model",
+                    "reference": "model.EmailTemplate"
+                }
+            ]
+        },
+        {
+            "name": "responseCode",
+            "type": "integer"
+        }
+    ],
+    "steps": [
+        {
+            "type": "invokeGloop",
+            "name": "sql.SelectEmailTemplate",
+            "declare": [
+                {
+                    "variables": [
+                        {
+                            "name": "emailTemplate",
+                            "type": "model",
+                            "reference": "model.EmailTemplate"
+                        }
+                    ]
+                }
+            ],
+            "inputs": [
+                {
+                    "from": [
+                        "emailTemplateId"
+                    ],
+                    "to": [
+                        "selectEmailTemplateInput",
+                        "id"
+                    ]
+                }
+            ],
+            "outputs": [
+                {
+                    "from": [
+                        "selectEmailTemplateOutput",
+                        "ID"
+                    ],
+                    "to": [
+                        "emailTemplate",
+                        "id"
+                    ]
+                },
+                {
+                    "from": [
+                        "selectEmailTemplateOutput",
+                        "TEMPLATE_NAME"
+                    ],
+                    "to": [
+                        "emailTemplate",
+                        "email_template_name"
+                    ]
+                },
+                {
+                    "from": [
+                        "selectEmailTemplateOutput",
+                        "DESCRIPTION"
+                    ],
+                    "to": [
+                        "emailTemplate",
+                        "email_template_description"
+                    ]
+                },
+                {
+                    "from": [
+                        "selectEmailTemplateOutput",
+                        "EMAIL_TEMPLATE"
+                    ],
+                    "to": [
+                        "emailTemplate",
+                        "email_template"
+                    ]
+                },
+                {
+                    "from": [
+                        "selectEmailTemplateOutput",
+                        "DATE_CREATED"
+                    ],
+                    "to": [
+                        "emailTemplate",
+                        "dateCreated"
+                    ]
+                },
+                {
+                    "from": [
+                        "selectEmailTemplateOutput",
+                        "DATE_UPDATED"
+                    ],
+                    "to": [
+                        "emailTemplate",
+                        "dateUpdated"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "fork",
+            "expression": "emailTemplate.id",
+            "children": [
+                {
+                    "type": "block",
+                    "label": "$null",
+                    "children": [
+                        {
+                            "lines": [
+                                {
+                                    "type": "set",
+                                    "expression": "\"Email Template with ID ${emailTemplateId} could not be found or does not exist\"",
+                                    "evaluate": true,
+                                    "to": [
+                                        "response",
+                                        "message"
+                                    ]
+                                },
+                                {
+                                    "type": "set",
+                                    "expression": "404",
+                                    "to": [
+                                        "responseCode"
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "break",
+                            "expression": "$gloopService"
+                        }
+                    ]
+                },
+                {
+                    "type": "block",
+                    "label": "$else",
+                    "children": [
+                        {
+                            "lines": [
+                                {
+                                    "from": [
+                                        "emailTemplate"
+                                    ],
+                                    "to": [
+                                        "response",
+                                        "emailTemplate"
+                                    ]
+                                },
+                                {
+                                    "type": "set",
+                                    "expression": "200",
+                                    "to": [
+                                        "responseCode"
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

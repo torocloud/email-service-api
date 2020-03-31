@@ -1,0 +1,128 @@
+{
+    "input": [
+        {
+            "name": "messageObject",
+            "type": "model",
+            "allowExtraProperties": true
+        },
+        {
+            "name": "queue"
+        }
+    ],
+    "output": [
+        {
+            "name": "responseCode",
+            "type": "integer"
+        }
+    ],
+    "steps": [
+        {
+            "type": "block",
+            "blockType": "TRY_CATCH",
+            "children": [
+                {
+                    "type": "invokeCode",
+                    "className": "io.toro.martini.JmsMethods",
+                    "methodName": "publishObject",
+                    "parameters": [
+                        "java.lang.String",
+                        "java.io.Serializable"
+                    ],
+                    "inputs": [
+                        {
+                            "type": "set",
+                            "expression": "\"queue://${queue}\"",
+                            "evaluate": true,
+                            "to": [
+                                "destinationName"
+                            ]
+                        },
+                        {
+                            "type": "set",
+                            "expression": "messageObject.asJson()",
+                            "evaluate": true,
+                            "to": [
+                                "obj"
+                            ]
+                        }
+                    ],
+                    "outputs": [
+                        {
+                            "type": "set",
+                            "expression": "202",
+                            "to": [
+                                "responseCode"
+                            ]
+                        }
+                    ]
+                }
+            ],
+            "catch": [
+                {
+                    "type": "invokeCode",
+                    "className": "io.toro.martini.JmsMethods",
+                    "methodName": "publishObject",
+                    "parameters": [
+                        "java.lang.String",
+                        "java.io.Serializable"
+                    ],
+                    "inputs": [
+                        {
+                            "type": "set",
+                            "expression": "queue://notifications",
+                            "to": [
+                                "destinationName"
+                            ]
+                        },
+                        {
+                            "type": "set",
+                            "expression": "$gloopException.asJson()",
+                            "evaluate": true,
+                            "to": [
+                                "obj"
+                            ]
+                        }
+                    ],
+                    "outputs": [
+                        {
+                            "type": "set",
+                            "expression": "500",
+                            "to": [
+                                "responseCode"
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "invokeCode",
+                    "className": "io.toro.martini.LoggerMethods",
+                    "methodName": "error",
+                    "parameters": [
+                        "java.lang.String",
+                        "java.lang.Throwable"
+                    ],
+                    "inputs": [
+                        {
+                            "from": [
+                                "$gloopException",
+                                "gloopStackTrace"
+                            ],
+                            "to": [
+                                "message"
+                            ]
+                        },
+                        {
+                            "from": [
+                                "$gloopException",
+                                "realException"
+                            ],
+                            "to": [
+                                "throwable"
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

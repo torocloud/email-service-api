@@ -1,0 +1,35 @@
+{
+    "type": "customSql",
+    "input": [
+        {
+            "name": "updateEmailTemplateInput",
+            "type": "model",
+            "gloopProperties": [
+                {
+                    "name": "$martiniConnectionPool"
+                },
+                {
+                    "name": "emailTemplateName"
+                },
+                {
+                    "name": "emailTemplateDescription"
+                },
+                {
+                    "name": "emailTemplate"
+                },
+                {
+                    "name": "id"
+                }
+            ]
+        }
+    ],
+    "output": [
+        {
+            "name": "updateCount",
+            "type": "integer"
+        }
+    ],
+    "connectionPoolName": "email_template",
+    "sqlType": "UPDATE",
+    "query": "UPDATE\n    \"TEMPLATES\"\nSET\n\t\"TEMPLATE_NAME\" = COALESCE( :emailTemplateName, \"TEMPLATE_NAME\" ),\n    \"DESCRIPTION\" = COALESCE( :emailTemplateDescription, \"DESCRIPTION\"),\n    \"EMAIL_TEMPLATE\" = COALESCE( :emailTemplate, \"EMAIL_TEMPLATE\" )\nWHERE (\n    \"ID\" = :id\n)"
+}

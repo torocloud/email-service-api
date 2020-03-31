@@ -1,0 +1,62 @@
+{
+    "name": "ShipmentOrder",
+    "type": "model",
+    "gloopProperties": [
+        {
+            "name": "orderNumber"
+        },
+        {
+            "name": "lastName"
+        },
+        {
+            "name": "firstName"
+        },
+        {
+            "name": "address1"
+        },
+        {
+            "name": "address2"
+        },
+        {
+            "name": "city"
+        },
+        {
+            "name": "state"
+        },
+        {
+            "name": "zipCode"
+        },
+        {
+            "name": "phoneNumber"
+        },
+        {
+            "name": "emailAddress"
+        },
+        {
+            "name": "chargeAccount"
+        },
+        {
+            "name": "mailClass"
+        },
+        {
+            "name": "postageCost"
+        },
+        {
+            "name": "trackingNumber"
+        },
+        {
+            "name": "fullXmlSource"
+        },
+        {
+            "name": "messageSent"
+        },
+        {
+            "name": "dateAdded",
+            "type": "date"
+        },
+        {
+            "name": "dateShipped",
+            "type": "date"
+        }
+    ]
+}

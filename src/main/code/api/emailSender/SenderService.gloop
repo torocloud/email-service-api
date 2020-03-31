@@ -1,0 +1,163 @@
+{
+    "input": [
+        {
+            "name": "emailMessage",
+            "type": "model",
+            "gloopProperties": [
+                {
+                    "name": "recipients",
+                    "type": "model",
+                    "array": true,
+                    "gloopProperties": [
+                        {
+                            "name": "to",
+                            "array": true,
+                            "comments": "comma separated list of recipient's email address"
+                        },
+                        {
+                            "name": "cc",
+                            "array": true,
+                            "comments": "comma separated list of email address to cc"
+                        },
+                        {
+                            "name": "bcc",
+                            "array": true,
+                            "comments": "comma separated list of email address to bcc"
+                        }
+                    ]
+                },
+                {
+                    "name": "velocityProperties",
+                    "type": "model",
+                    "allowExtraProperties": true
+                },
+                {
+                    "name": "emailTemplateId",
+                    "type": "integer",
+                    "comments": "The ID of the email template to be used as email body"
+                },
+                {
+                    "name": "subject"
+                },
+                {
+                    "name": "body"
+                }
+            ]
+        }
+    ],
+    "output": [
+        {
+            "name": "output",
+            "type": "model",
+            "allowExtraProperties": true,
+            "gloopProperties": [
+                {
+                    "name": "status",
+                    "defaultValue": ""
+                }
+            ]
+        }
+    ],
+    "steps": [
+        {
+            "type": "block",
+            "blockType": "TRY_CATCH",
+            "children": [
+                {
+                    "declare": [
+                        {
+                            "variables": [
+                                {
+                                    "name": "replyLatch",
+                                    "type": "object",
+                                    "objectClassName": "java.util.concurrent.CountDownLatch"
+                                }
+                            ]
+                        }
+                    ],
+                    "lines": [
+                        {
+                            "type": "set",
+                            "expression": "import java.util.concurrent.CountDownLatch\n\nreplyLatch = new CountDownLatch(1)",
+                            "evaluate": true,
+                            "to": [
+                                "replyLatch"
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "invokeCode",
+                    "className": "io.toro.martini.JmsMethods",
+                    "methodName": "publishObject",
+                    "parameters": [
+                        "java.lang.String",
+                        "java.io.Serializable",
+                        "groovy.lang.Closure"
+                    ],
+                    "inputs": [
+                        {
+                            "type": "set",
+                            "expression": "queue://emailSender",
+                            "to": [
+                                "destinationName"
+                            ]
+                        },
+                        {
+                            "type": "set",
+                            "expression": "emailMessage.asJson( false, false )",
+                            "evaluate": true,
+                            "to": [
+                                "obj"
+                            ]
+                        },
+                        {
+                            "type": "set",
+                            "expression": "import io.toro.martini.JsonMethods\nimport io.toro.gloop.object.property.GloopObject\n\n\n{ replyMessage ->\n\tGloopObject res = JsonMethods.jsonStringToGloopObject( replyMessage.text )\n    \n\toutput.status = res.status\n\tString messageId = res.messageId\n\t\n\tif ( res.hasProperty( 'errorMessage' ) )\n\t\toutput?.errorMessage = res?.errorMessage\n\t\n\tmessageId.addDocument( res.timestamp.toString(),\n\t\t'JMS',\n\t\t'SendEmail.gloop',\n\t\t'SenderService.gloop',\n\t\t'Replied',\n\t\tres.asJson()\n\t)\n\n\treplyLatch.countDown()\n}",
+                            "evaluate": true,
+                            "to": [
+                                "replyClosure"
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "gloovy",
+                    "comments": "Wait for 1s or until it receives a reply from the JMS listener after sending a JMS message.",
+                    "gloovyScript": "import java.util.concurrent.TimeUnit\n\nreplyLatch.await( 5, TimeUnit.SECONDS )"
+                }
+            ],
+            "catch": [
+                {
+                    "type": "invokeCode",
+                    "className": "io.toro.martini.LoggerMethods",
+                    "methodName": "error",
+                    "parameters": [
+                        "java.lang.String",
+                        "java.lang.Throwable"
+                    ],
+                    "inputs": [
+                        {
+                            "from": [
+                                "$gloopException",
+                                "gloopStackTrace"
+                            ],
+                            "to": [
+                                "message"
+                            ]
+                        },
+                        {
+                            "from": [
+                                "$gloopException",
+                                "realException"
+                            ],
+                            "to": [
+                                "throwable"
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

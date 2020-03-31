@@ -1,0 +1,35 @@
+<package stateOnStartup="loaded" id="email-service-api" version="1.0.0" context-path="/email-service">
+  <package-dependencies/>
+  <startup-services>
+    <startup-service>gloop:util.StartupService/util.StartupService</startup-service>
+  </startup-services>
+  <shutdown-services/>
+  <endpoints>
+    <endpoint type="jms-listener" name="EmailNotificationService" service="gloop:api.notification.listener.SendEmailNotification/api.notification.listener.SendEmailNotification" enabled="true" modifiable="true">
+      <properties>
+        <property name="documentType">JMS</property>
+        <property name="track">false</property>
+        <property name="destinationName">notifications</property>
+        <property name="destinationType">queue</property>
+        <property name="transacted">true</property>
+        <property name="concurrentConsumers">1</property>
+        <property name="maxConcurrentConsumers">1</property>
+        <property name="durable">false</property>
+        <property name="acknowledgement">0</property>
+      </properties>
+    </endpoint>
+    <endpoint type="jms-listener" name="EmailSenderService" service="gloop:api.emailSender.listener.SendEmail/api.emailSender.listener.SendEmail" enabled="true" modifiable="true">
+      <properties>
+        <property name="documentType">JMS</property>
+        <property name="track">false</property>
+        <property name="destinationName">emailSender</property>
+        <property name="destinationType">queue</property>
+        <property name="transacted">false</property>
+        <property name="concurrentConsumers">1</property>
+        <property name="maxConcurrentConsumers">1</property>
+        <property name="durable">false</property>
+        <property name="acknowledgement">1</property>
+      </properties>
+    </endpoint>
+  </endpoints>
+</package>

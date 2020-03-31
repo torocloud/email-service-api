@@ -1,0 +1,185 @@
+{
+    "input": [
+        {
+            "name": "emailTemplate",
+            "type": "model",
+            "reference": "model.EmailTemplate"
+        }
+    ],
+    "output": [
+        {
+            "name": "APIResponse",
+            "type": "model",
+            "reference": "io.toro.martini.api.APIResponse",
+            "gloopProperties": [
+                {
+                    "name": "emailTemplate",
+                    "type": "model",
+                    "reference": "model.EmailTemplate"
+                }
+            ]
+        },
+        {
+            "name": "responseCode",
+            "type": "integer"
+        }
+    ],
+    "steps": [
+        {
+            "type": "fork",
+            "expression": "emailTemplate.id",
+            "children": [
+                {
+                    "type": "block",
+                    "label": "$null",
+                    "children": [
+                        {
+                            "lines": [
+                                {
+                                    "type": "set",
+                                    "expression": "Email Template ID is empty",
+                                    "to": [
+                                        "APIResponse",
+                                        "message"
+                                    ]
+                                },
+                                {
+                                    "type": "set",
+                                    "expression": "400",
+                                    "to": [
+                                        "responseCode"
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "break",
+                            "expression": "$gloopService"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "invokeGloop",
+            "name": "sql.UpdateEmailTemplate",
+            "declare": [
+                {
+                    "variables": [
+                        {
+                            "name": "updateCount",
+                            "type": "integer"
+                        }
+                    ]
+                }
+            ],
+            "inputs": [
+                {
+                    "from": [
+                        "emailTemplate",
+                        "id"
+                    ],
+                    "to": [
+                        "updateEmailTemplateInput",
+                        "id"
+                    ]
+                },
+                {
+                    "from": [
+                        "emailTemplate",
+                        "email_template_name"
+                    ],
+                    "to": [
+                        "updateEmailTemplateInput",
+                        "emailTemplateName"
+                    ]
+                },
+                {
+                    "from": [
+                        "emailTemplate",
+                        "email_template_description"
+                    ],
+                    "to": [
+                        "updateEmailTemplateInput",
+                        "emailTemplateDescription"
+                    ]
+                },
+                {
+                    "from": [
+                        "emailTemplate",
+                        "email_template"
+                    ],
+                    "to": [
+                        "updateEmailTemplateInput",
+                        "emailTemplate"
+                    ]
+                }
+            ],
+            "outputs": [
+                {
+                    "from": [
+                        "updateCount"
+                    ],
+                    "to": [
+                        "updateCount"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "fork",
+            "expression": "updateCount > 0",
+            "children": [
+                {
+                    "label": "true",
+                    "lines": [
+                        {
+                            "from": [
+                                "emailTemplate"
+                            ],
+                            "to": [
+                                "APIResponse",
+                                "emailTemplate"
+                            ]
+                        },
+                        {
+                            "type": "set",
+                            "expression": "Successfully updated email template.",
+                            "to": [
+                                "APIResponse",
+                                "message"
+                            ]
+                        },
+                        {
+                            "type": "set",
+                            "expression": "200",
+                            "to": [
+                                "responseCode"
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "label": "$else",
+                    "lines": [
+                        {
+                            "type": "set",
+                            "expression": "Failed to update email template",
+                            "to": [
+                                "APIResponse",
+                                "message"
+                            ]
+                        },
+                        {
+                            "type": "set",
+                            "expression": "400",
+                            "to": [
+                                "responseCode"
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

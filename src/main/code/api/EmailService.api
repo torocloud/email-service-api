@@ -1,0 +1,179 @@
+{
+    "info": {
+        "version": "1.0-SNAPSHOT"
+    },
+    "basePath": "/email-service",
+    "paths": {
+        "/templates": {
+            "get": {
+                "produces": [
+                    "application/json",
+                    "application/xml"
+                ],
+                "responses": {
+                    "200": {
+                        "body": "APIResponse",
+                        "description": "Returns all available email template"
+                    },
+                    "500": {
+                        "body": "APIResponse",
+                        "description": "Response if the request encoutered an error while processing the request in the server."
+                    }
+                },
+                "operationType": "gloop",
+                "operationLocation": "api.emailTemplate.GetAllEmailTemplate",
+                "responseCodeField": "responseCode"
+            },
+            "put": {
+                "consumes": [
+                    "application/json",
+                    "application/xml"
+                ],
+                "produces": [
+                    "application/json",
+                    "application/xml"
+                ],
+                "bodyParameter": {
+                    "name": "emailTemplate",
+                    "description": "emailTemplate"
+                },
+                "responses": {
+                    "200": {
+                        "body": "APIResponse",
+                        "description": "Success response if the update request is successful"
+                    },
+                    "400": {
+                        "body": "APIResponse",
+                        "description": "Error response if the update request failed"
+                    }
+                },
+                "operationType": "gloop",
+                "operationLocation": "api.emailTemplate.UpdateEmailTemplate",
+                "responseCodeField": "responseCode"
+            },
+            "post": {
+                "consumes": [
+                    "application/json",
+                    "application/xml"
+                ],
+                "produces": [
+                    "application/json",
+                    "application/xml"
+                ],
+                "bodyParameter": {
+                    "name": "emailTemplate",
+                    "description": "emailTemplate"
+                },
+                "responses": {
+                    "201": {
+                        "body": "APIResponse",
+                        "description": "Returns the response for inserting new email template"
+                    },
+                    "400": {
+                        "body": "APIResponse",
+                        "description": "Returned response when the request failed"
+                    }
+                },
+                "operationType": "gloop",
+                "operationLocation": "api.emailTemplate.AddEmailTemplate",
+                "responseCodeField": "responseCode"
+            }
+        },
+        "/templates/{emailTemplateId}": {
+            "get": {
+                "produces": [
+                    "application/json",
+                    "application/xml"
+                ],
+                "parameters": [
+                    {
+                        "name": "emailTemplateId",
+                        "type": "PATH",
+                        "description": "The id of the email template to be retrieved"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "body": "response",
+                        "description": "The requested resource if found"
+                    },
+                    "404": {
+                        "body": "response",
+                        "description": "The error response, if the requested resource is not found"
+                    }
+                },
+                "operationType": "gloop",
+                "operationLocation": "api.emailTemplate.GetEmailTemplate",
+                "responseCodeField": "responseCode"
+            },
+            "delete": {
+                "produces": [
+                    "application/json",
+                    "application/xml"
+                ],
+                "parameters": [
+                    {
+                        "name": "emailTemplateId",
+                        "type": "PATH"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "body": "APIResponse",
+                        "description": "Delete response, if the request is successful"
+                    },
+                    "404": {
+                        "body": "APIResponse",
+                        "description": "Delete response, if the request has failed to delete the requested resource"
+                    }
+                },
+                "operationType": "gloop",
+                "operationLocation": "api.emailTemplate.DeleteEmailTemplate",
+                "responseCodeField": "responseCode"
+            }
+        },
+        "/send": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "bodyParameter": {
+                    "name": "emailMessage",
+                    "description": "emailMessage"
+                },
+                "responses": {
+                    "-1": {
+                        "body": "output",
+                        "description": "Test"
+                    }
+                },
+                "operationType": "gloop",
+                "operationLocation": "api.emailSender.SenderService"
+            }
+        },
+        "/notifications": {
+            "post": {
+                "parameters": [
+                    {
+                        "name": "queue",
+                        "type": "HEADER"
+                    }
+                ],
+                "bodyParameter": {
+                    "name": "messageObject",
+                    "description": "messageObject"
+                },
+                "responses": {
+                    "202": {
+                        
+                    }
+                },
+                "operationType": "gloop",
+                "operationLocation": "api.notification.NotificationService"
+            }
+        }
+    }
+}

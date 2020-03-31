@@ -1,0 +1,26 @@
+{
+    "type": "customSql",
+    "input": [
+        {
+            "name": "deleteEmailTemplateInput",
+            "type": "model",
+            "gloopProperties": [
+                {
+                    "name": "$martiniConnectionPool"
+                },
+                {
+                    "name": "id"
+                }
+            ]
+        }
+    ],
+    "output": [
+        {
+            "name": "updateCount",
+            "type": "integer"
+        }
+    ],
+    "connectionPoolName": "email_template",
+    "sqlType": "DELETE",
+    "query": "DELETE \nFROM \n\t\"TEMPLATES\"\nWHERE \n\t\"ID\" = :id "
+}

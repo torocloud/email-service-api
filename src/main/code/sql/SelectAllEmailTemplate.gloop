@@ -1,0 +1,58 @@
+{
+    "type": "customSql",
+    "input": [
+        {
+            "name": "selectAllEmailTemplateInput",
+            "type": "model",
+            "gloopProperties": [
+                {
+                    "name": "$martiniConnectionPool"
+                },
+                {
+                    "name": "$limit",
+                    "type": "integer"
+                }
+            ]
+        }
+    ],
+    "output": [
+        {
+            "name": "selectAllEmailTemplateInputCursor",
+            "type": "model",
+            "array": true,
+            "gloopProperties": [
+                {
+                    "name": "ID",
+                    "required": true,
+                    "allowNull": false
+                },
+                {
+                    "name": "TEMPLATE_NAME",
+                    "required": true,
+                    "allowNull": false
+                },
+                {
+                    "name": "DESCRIPTION",
+                    "required": true
+                },
+                {
+                    "name": "EMAIL_TEMPLATE",
+                    "required": true
+                },
+                {
+                    "name": "DATE_CREATED",
+                    "type": "date",
+                    "required": true
+                },
+                {
+                    "name": "DATE_UPDATED",
+                    "type": "date",
+                    "required": true
+                }
+            ]
+        }
+    ],
+    "connectionPoolName": "email_template",
+    "sqlType": "SELECT_MULTI",
+    "query": "SELECT *\nFROM\n    \"TEMPLATES\""
+}

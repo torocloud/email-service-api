@@ -1,0 +1,154 @@
+{
+    "input": [
+        {
+            "name": "emailTemplate",
+            "type": "model",
+            "reference": "model.EmailTemplate"
+        }
+    ],
+    "output": [
+        {
+            "name": "APIResponse",
+            "type": "model",
+            "reference": "io.toro.martini.api.APIResponse",
+            "gloopProperties": [
+                {
+                    "name": "emailTemplate",
+                    "type": "model",
+                    "reference": "model.EmailTemplate"
+                }
+            ]
+        },
+        {
+            "name": "responseCode",
+            "type": "integer"
+        }
+    ],
+    "steps": [
+        {
+            "type": "invokeGloop",
+            "name": "sql.InsertEmailTemplate",
+            "inputs": [
+                {
+                    "from": [
+                        "emailTemplate",
+                        "email_template_name"
+                    ],
+                    "to": [
+                        "insertEmailTemplateInput",
+                        "emailTemplateName"
+                    ]
+                },
+                {
+                    "from": [
+                        "emailTemplate",
+                        "email_template_description"
+                    ],
+                    "to": [
+                        "insertEmailTemplateInput",
+                        "emailTemplateDescription"
+                    ]
+                },
+                {
+                    "from": [
+                        "emailTemplate",
+                        "email_template"
+                    ],
+                    "to": [
+                        "insertEmailTemplateInput",
+                        "emailTemplate"
+                    ]
+                },
+                {
+                    "type": "set",
+                    "expression": "true",
+                    "to": [
+                        "insertEmailTemplateInput",
+                        "$getGeneratedKeys"
+                    ]
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "set",
+                    "expression": "UUID.randomUUID()",
+                    "evaluate": true,
+                    "to": [
+                        "emailTemplate",
+                        "id"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "fork",
+            "expression": "emailTemplate.id",
+            "children": [
+                {
+                    "type": "block",
+                    "label": "$null",
+                    "children": [
+                        {
+                            "lines": [
+                                {
+                                    "type": "set",
+                                    "expression": "Failed to create email template",
+                                    "to": [
+                                        "APIResponse",
+                                        "message"
+                                    ]
+                                },
+                                {
+                                    "type": "set",
+                                    "expression": "400",
+                                    "to": [
+                                        "responseCode"
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "break",
+                            "expression": "$gloopService"
+                        }
+                    ]
+                },
+                {
+                    "type": "invokeGloop",
+                    "label": "$else",
+                    "name": "api.emailTemplate.GetEmailTemplate",
+                    "inputs": [
+                        {
+                            "from": [
+                                "emailTemplate",
+                                "id"
+                            ],
+                            "to": [
+                                "emailTemplateId"
+                            ]
+                        }
+                    ],
+                    "outputs": [
+                        {
+                            "from": [
+                                "response",
+                                "emailTemplate"
+                            ],
+                            "to": [
+                                "APIResponse",
+                                "emailTemplate"
+                            ]
+                        },
+                        {
+                            "type": "set",
+                            "expression": "201",
+                            "to": [
+                                "responseCode"
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

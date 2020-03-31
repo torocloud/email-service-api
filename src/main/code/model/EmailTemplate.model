@@ -1,0 +1,32 @@
+{
+    "name": "EmailTemplate",
+    "type": "model",
+    "gloopProperties": [
+        {
+            "name": "id",
+            "type": "integer",
+            "required": true
+        },
+        {
+            "name": "email_template_name",
+            "required": true,
+            "allowNull": false
+        },
+        {
+            "name": "email_template_description",
+            "required": true
+        },
+        {
+            "name": "email_template",
+            "required": true
+        },
+        {
+            "name": "dateCreated",
+            "type": "long"
+        },
+        {
+            "name": "dateUpdated",
+            "type": "long"
+        }
+    ]
+}
