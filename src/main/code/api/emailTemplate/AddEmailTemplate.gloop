@@ -26,6 +26,27 @@
     ],
     "steps": [
         {
+            "declare": [
+                {
+                    "variables": [
+                        {
+                            "name": "generatedId"
+                        }
+                    ]
+                }
+            ],
+            "lines": [
+                {
+                    "type": "set",
+                    "expression": "UUID.randomUUID()",
+                    "evaluate": true,
+                    "to": [
+                        "generatedId"
+                    ]
+                }
+            ]
+        },
+        {
             "type": "invokeGloop",
             "name": "sql.InsertEmailTemplate",
             "inputs": [
@@ -60,18 +81,19 @@
                     ]
                 },
                 {
-                    "type": "set",
-                    "expression": "true",
+                    "from": [
+                        "generatedId"
+                    ],
                     "to": [
                         "insertEmailTemplateInput",
-                        "$getGeneratedKeys"
+                        "id"
                     ]
                 }
             ],
             "outputs": [
                 {
                     "type": "set",
-                    "expression": "UUID.randomUUID()",
+                    "expression": "generatedId",
                     "evaluate": true,
                     "to": [
                         "emailTemplate",

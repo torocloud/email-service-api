@@ -92,7 +92,6 @@
                                         },
                                         {
                                             "name": "emailTemplateId",
-                                            "type": "integer",
                                             "comments": "The ID of the email template to be used as email body"
                                         },
                                         {
@@ -409,9 +408,10 @@
                                     ],
                                     "inputs": [
                                         {
-                                            "type": "set",
-                                            "expression": "emailProperties.emailTemplateId",
-                                            "evaluate": true,
+                                            "from": [
+                                                "emailProperties",
+                                                "emailTemplateId"
+                                            ],
                                             "to": [
                                                 "emailTemplateId"
                                             ]

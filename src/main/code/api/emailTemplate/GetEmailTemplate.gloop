@@ -2,7 +2,6 @@
     "input": [
         {
             "name": "emailTemplateId",
-            "type": "integer",
             "allowNull": false
         }
     ],

@@ -1,8 +1,7 @@
 {
     "input": [
         {
-            "name": "emailTemplateId",
-            "type": "integer"
+            "name": "emailTemplateId"
         }
     ],
     "output": [

@@ -14,13 +14,20 @@
                     "defaultValue": false
                 },
                 {
-                    "name": "emailTemplateName"
+                    "name": "id",
+                    "type": "object"
                 },
                 {
-                    "name": "emailTemplateDescription"
+                    "name": "emailTemplateName",
+                    "type": "object"
                 },
                 {
-                    "name": "emailTemplate"
+                    "name": "emailTemplateDescription",
+                    "type": "object"
+                },
+                {
+                    "name": "emailTemplate",
+                    "type": "object"
                 }
             ]
         }
@@ -38,5 +45,5 @@
     ],
     "connectionPoolName": "email_template",
     "sqlType": "INSERT",
-    "query": "INSERT INTO \"TEMPLATES\" (\n    \"TEMPLATE_NAME\",\n    \"DESCRIPTION\",\n    \"EMAIL_TEMPLATE\"\n)\nVALUES (\n    :emailTemplateName,\n    :emailTemplateDescription,\n    :emailTemplate\n)"
+    "query": "INSERT INTO \"TEMPLATES\" (\n\t\"ID\",\n    \"TEMPLATE_NAME\",\n    \"DESCRIPTION\",\n    \"EMAIL_TEMPLATE\"\n)\nVALUES (\n\t:id,\n    :emailTemplateName,\n    :emailTemplateDescription,\n    :emailTemplate\n)"
 }
