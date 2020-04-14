@@ -80,6 +80,7 @@ email.notification.recipients=
 * `database.type` sets the database provider the Martini package will use. If you will use the default hsql config, you don't need to change anything in the hsql configuration. **Note**: If you will use a different hsql database, make sure that you add `sql.syntax_mys=true` in the connection properties. This ensures that the SQL query from the SQL Services in this package will be compatible with hsql.
 * SMTP Server Settings - Contains your SMTP server credentials that will be used for sending emails
 * `email.notification.recipients` - A comma separated list of email address that will receive the email notifications when a notification is triggered
+* `smtp.email.alias` - What will be displayed in the `from` field of the email to be sent.
 
 ### Operations
 
